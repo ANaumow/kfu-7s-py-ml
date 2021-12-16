@@ -22,7 +22,6 @@ card_y = size_x * 4
 proximity_dist = sx * 2
 
 
-
 def dist(point_a, point_b):
     return sqrt((point_a.x - point_b.x) ** 2 + (point_a.y - point_b.y) ** 2)
 
@@ -134,6 +133,7 @@ def dbscan(target_points):
 
     return clusters
 
+
 class Point:
     def __init__(self, x, y, clr=None):
         if clr is None:
@@ -166,8 +166,8 @@ radius_range = [0, 15]
 
 points = set()
 
-
 _clusters = []
+
 
 def add_points(x, y):
     point = Point(int(x / sx) * sx, int(y / sy) * sy)
@@ -197,47 +197,40 @@ while game_loop:
     if pygame.key.get_pressed()[pygame.K_ESCAPE]:
         game_loop = False
 
-    if pygame.key.get_pressed()[pygame.K_k]:
-
-        fields = []
-        for cluster in sorted(_clusters, key=lambda c: max(c, key=lambda p: p.x).x):
-
-            field = [[0 for y in range(28)] for x in range(28)]
-            min_x = min(cluster, key=lambda p: p.x).x
-            max_x = max(cluster, key=lambda p: p.x).x
-
-            dif_x = max_x - min_x
-
-            for point in cluster:
-                x = int((point.x - min_x + (28 * sx - dif_x) / 2) / sx)
-                y = int((point.y - card_y) / sy)
-                field[x][y] = 1
-
-            fields.append(field)
-
-        print(fields)
-
-
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_loop = False
 
-        # if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_k:
+                fields = []
+
+                for cluster in sorted(_clusters, key=lambda c: max(c, key=lambda p: p.x).x):
+
+                    field = [[0 for y in range(28)] for x in range(28)]
+                    min_x = min(cluster, key=lambda p: p.x).x
+                    max_x = max(cluster, key=lambda p: p.x).x
+
+                    dif_x = max_x - min_x
+
+                    for point in cluster:
+                        x = int((point.x - min_x + (28 * sx - dif_x) / 2) / sx)
+                        y = int((point.y - card_y) / sy)
+                        field[x][y] = 1
+
+                    fields.append(field)
+
+                print(fields)
 
     mouse_buttons = pygame.mouse.get_pressed()
-
     if any(mouse_buttons):
         add_points(*pygame.mouse.get_pos())
-
-        print(len(points))
 
     pygame.draw.rect(surface, 'black', pygame.Rect(card_x, card_y, size_y * sy, size_x * sx))
 
     for point in points:
         # pygame.draw.circle(surface, point.color, (point.x, point.y), sx/ 2)
         pygame.draw.rect(surface, point.color, pygame.Rect(point.x, point.y, sx, sy))
-
 
     pygame.display.update()
 
