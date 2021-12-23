@@ -205,31 +205,33 @@ while game_loop:
             if event.key == pygame.K_k:
                 fields = []
 
-                for cluster in sorted(_clusters, key=lambda c: max(c, key=lambda p: p.x).x):
+                for cluster in sorted(_clusters, key=lambda c: min(c, key=lambda p: p.x).x):
 
                     field = [[0 for y in range(28)] for x in range(28)]
                     min_x = min(cluster, key=lambda p: p.x).x
                     max_x = max(cluster, key=lambda p: p.x).x
 
+                    min_y = min(cluster, key=lambda p: p.y).y
+                    max_y = max(cluster, key=lambda p: p.y).y
+
                     dif_x = max_x - min_x
+                    dif_y = max_y - min_y
 
                     for point in cluster:
                         x = int((point.x - min_x + (28 * sx - dif_x) / 2) / sx)
-                        y = int((point.y - card_y) / sy)
-                        field[x][y] = 1
+                        y = int((point.y - min_y + (28 * sy - dif_y) / 2) / sy)
+
+                        if x in range(0, 27) and y in range(0, 27):
+                            field[x][y] = 1
 
                     fields.append(field)
 
                 print(fields)
 
-    mouse_buttons = pygame.mouse.get_pressed()
-    if any(mouse_buttons):
+    if any(pygame.mouse.get_pressed()):
         add_points(*pygame.mouse.get_pos())
 
-    pygame.draw.rect(surface, 'black', pygame.Rect(card_x, card_y, size_y * sy, size_x * sx))
-
     for point in points:
-        # pygame.draw.circle(surface, point.color, (point.x, point.y), sx/ 2)
         pygame.draw.rect(surface, point.color, pygame.Rect(point.x, point.y, sx, sy))
 
     pygame.display.update()
